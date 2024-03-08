@@ -21,7 +21,7 @@ class dataset_iSAID_mask_color():
         super(dataset_iSAID_mask_color, self).__init__()
 
         
-        with open(path_json, 'r', encoding='utf-8') as fp:
+        with open(meta_file, 'r', encoding='utf-8') as fp:
             data = json.load(fp)
         data = data['annotations']
         self.files = []

@@ -13,7 +13,7 @@ from basicsr.utils import (get_env_info, get_root_logger, get_time_str,
 from basicsr.utils.options import copy_opt_file, dict2str
 from omegaconf import OmegaConf
 
-from ldm.data.dataset_canny_RS import CannyDataset
+from ldm.data.dataset_seg import SegDataset
 from basicsr.utils.dist_util import get_dist_info, init_dist, master_only
 from ldm.modules.encoders.adapter import Adapter
 from ldm.util import load_model_from_config
@@ -97,7 +97,7 @@ def parsr_args():
     parser.add_argument(
         "--name",
         type=str,
-        default="train_canny",
+        default="train_seg",
         help="experiment name",
     )
     parser.add_argument(
@@ -178,7 +178,7 @@ def main():
     torch.cuda.set_device(opt.local_rank)
 
     # dataset
-    train_dataset = CannyDataset('datasets/canny/canny_RS.txt')
+    train_dataset = SegDataset('datasets/seg/seg_RS.txt')
     train_sampler = torch.utils.data.distributed.DistributedSampler(train_dataset)
     train_dataloader = torch.utils.data.DataLoader(
         train_dataset,
@@ -191,10 +191,8 @@ def main():
     # stable diffusion
     model = load_model_from_config(config, f"{opt.ckpt}").to(device)
 
-    # #这里弄错了啊，对于canny，cin应该是1*64。
-    # model_ad = Adapter(cin=3 * 64, channels=[320, 640, 1280, 1280][:4], nums_rb=2, ksize=1, sk=True, use_conv=False).to(device)
-    #canny encoder
-    model_ad = Adapter(cin=64, channels=[320, 640, 1280, 1280][:4], nums_rb=2, ksize=1, sk=True, use_conv=False).to(device)
+    model_ad = Adapter(cin=3 * 64, channels=[320, 640, 1280, 1280][:4], nums_rb=2, ksize=1, sk=True, use_conv=False).to(device)
+    
     # to gpus
     model_ad = torch.nn.parallel.DistributedDataParallel(
         model_ad,
@@ -253,7 +251,7 @@ def main():
 
             optimizer.zero_grad()
             model.zero_grad()
-            features_adapter = model_ad(data['canny'].to(device))
+            features_adapter = model_ad(data['seg'].to(device))
             l_pixel, loss_dict = model(z, c=c, features_adapter=features_adapter)
             l_pixel.backward()
             optimizer.step()

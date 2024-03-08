@@ -259,7 +259,6 @@ def get_cond_inpaint(opt, cond_image,cond_inp_type='image', cond_model=None,mask
     input_mask = resize_numpy_image(input_mask, max_resolution=opt.max_resolution, resize_short_edge=opt.resize_short_edge)
     img_raw = resize_numpy_image(img_raw, max_resolution=opt.max_resolution, resize_short_edge=opt.resize_short_edge)
     opt.H, opt.W = input_mask.shape[:2]
-
     ###
     #转化为指定尺寸
     mask_pixel = cv2.resize(input_mask[:, :, 0], (opt.W, opt.H), interpolation=cv2.INTER_LINEAR).astype(np.float32) / 255.0

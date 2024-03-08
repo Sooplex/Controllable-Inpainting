@@ -56,8 +56,8 @@ def main():
             sd_model.ema_scope(), \
             autocast('cuda'):
         for test_idx, (cond_path, prompt) in enumerate(zip(image_paths, prompts)):
-            mask= cond_path.rsplit('.', 1)[0]+'_mask000.png'
-            # mask ='/home/pnp/ControlNet-v1-1-nightly-main/mask.png'
+            # mask= cond_path.rsplit('.', 1)[0]+'_mask000.png'
+            mask =opt.mask
             seed_everything(opt.seed)
             for v_idx in range(opt.n_samples):
                 # seed_everything(opt.seed+v_idx+test_idx)

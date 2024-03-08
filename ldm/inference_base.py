@@ -312,5 +312,6 @@ def diffusion_inference(opt, model, sampler, adapter_features, append_to_context
 
     x_samples = model.decode_first_stage(samples_latents)
     x_samples = torch.clamp((x_samples + 1.0) / 2.0, min=0.0, max=1.0)
-
+    if(mask_pixel is not None and img_raw is not None):    
+        x_samples = x_samples * mask_pixel + img_raw * (1.0 - mask_pixel)#
     return x_samples
