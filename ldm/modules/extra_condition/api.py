@@ -269,9 +269,9 @@ def get_cond_inpaint(opt, cond_image,cond_inp_type='image', cond_model=None,mask
     #生成control
     # control = torch.from_numpy(detected_map.copy()).float().cuda() / 255.0
     # control = einops.rearrange(control, 'b h w c -> b c h w').clone()
-    control = img2tensor(detected_map).unsqueeze(0) / 255.
+    control = img2tensor(detected_map,bgr2rgb=False).unsqueeze(0) / 255.
     control = control.to(opt.device)
-    return control,mask_pixel,cv2.cvtColor(img_raw, cv2.COLOR_RGB2BGR)
+    return control,mask_pixel,cv2.cvtColor(img_raw, cv2.COLOR_BGR2RGB)
 
 def get_adapter_feature(inputs, adapters):
     ret_feat_map = None

@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import os
+from PIL import Image
 
 import sys
 os.chdir(sys.path[0])
@@ -41,7 +42,67 @@ def Crop_image(img):
             pic = picture[i*cut_width : (i+1)*cut_width, j*cut_length : (j+1)*cut_length, :]      
             result_path = outdir + '{}_{}.jpg'.format(i+1, j+1)
             cv2.imwrite(result_path, pic)
-    
+
+def apply_paste(orig,paste_image, paste_loc):
+    if paste_loc is not None:
+        base_image = Image.fromarray(cv2.cvtColor(orig, cv2.COLOR_BGR2RGB))
+        img_pasted = Image.fromarray(cv2.cvtColor(paste_image, cv2.COLOR_BGR2RGB))#
+        img_pasted.save(f'./output/tmp_beforepaste.png',"PNG")#未paste前
+        # base_image.paste(paste_image, (x, y))#ps:paste可以通过mask参数
+        base_image.paste(img_pasted,box=paste_loc)
+        # base_image.alpha_composite(paste_image,dest=paste_loc)#不对？
+        image_CV = cv2.cvtColor(np.array(base_image), cv2.COLOR_RGB2BGR)
+        return image_CV
+    return None
+
+        
+
+#大图裁切
+def preprocess(image,mask,max_resolution):
+    H, W, C=image.shape
+    #计算需要裁切的位置，crop_left,crop_top
+    crop_left = 0
+    for i in range(W):
+        if not (mask[:, i, 0] == 0).all():
+            break
+        crop_left += 1
+    crop_right = 0
+    for i in reversed(range(W)):
+        if not (mask[:, i, 0] == 0).all():
+            break
+        crop_right += 1
+    crop_right = W - crop_right
+    Rest=max_resolution-(crop_right-crop_left)#空余像素
+    #控制crop范围在原图内
+    if(crop_left-int(Rest/2)<0):crop_left=0
+    else:crop_left=crop_left-int(Rest/2)
+    if(crop_right+int(Rest/2)>W):crop_right=W
+    else:
+        crop_right=crop_right+int(Rest/2)
+    crop_left=max(0,min(crop_left,crop_right-max_resolution))
+    crop_right=min(W,max_resolution+crop_left)
+    crop_top = 0
+    for i in range(H):
+        if not (mask[i, :,0] == 0).all():
+            break
+        crop_top += 1
+    crop_bottom = 0
+    for i in reversed(range(H)):
+        if not (mask[i, :,0] == 0).all():
+            break
+        crop_bottom += 1
+    crop_bottom = H - crop_bottom
+    Rest=max_resolution-(crop_bottom-crop_top)
+    if(crop_top-int(Rest/2)<0):crop_top=0
+    else:crop_top=crop_top-int(Rest/2)
+    if(crop_bottom+int(Rest/2)>H):crop_bottom=H
+    else:
+        crop_bottom=crop_bottom+int(Rest/2)
+    crop_top=max(0,min(crop_top,crop_bottom-max_resolution))
+    crop_bottom=min(H,max_resolution+crop_top)
+    cropped_image = image[crop_top:crop_bottom, crop_left:crop_right, :]
+    cropped_mask = mask[crop_top:crop_bottom, crop_left:crop_right,:]
+    return cropped_image,cropped_mask,crop_left,crop_right,crop_top,crop_bottom
 def main():
     meta_file='/home/pnp/T2I-Adapter-SD/datasets/canny/canny_RS.txt'
     with open(meta_file, 'r') as f:

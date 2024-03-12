@@ -193,7 +193,7 @@ def main():
     # stable diffusion
     model = load_model_from_config(config, f"{opt.ckpt}").to(device)
 
-    # 对于mask选择还是3通道吧
+    # 
     model_ad = Adapter(cin=3 * 64, channels=[320, 640, 1280, 1280][:4], nums_rb=2, ksize=1, sk=True, use_conv=False).to(device)
     # model_ad = Adapter(cin=64, channels=[320, 640, 1280, 1280][:4], nums_rb=2, ksize=1, sk=True, use_conv=False).to(device)
     # to gpus

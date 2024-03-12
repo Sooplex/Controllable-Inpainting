@@ -169,7 +169,12 @@ def get_base_argument_parser() -> argparse.ArgumentParser:
         default=4,
         help='# of samples to generate',
     )
-
+    parser.add_argument(
+        '--mask',
+        type=str,
+        default=None,
+        help='mask for inpaint',
+    )
     return parser
 
 
@@ -311,7 +316,7 @@ def diffusion_inference(opt, model, sampler, adapter_features, append_to_context
     )
 
     x_samples = model.decode_first_stage(samples_latents)
+    # if(mask_pixel is not None):
+    #     img = img_orig * mask + (1. - mask) * img
     x_samples = torch.clamp((x_samples + 1.0) / 2.0, min=0.0, max=1.0)
-    if(mask_pixel is not None and img_raw is not None):    
-        x_samples = x_samples * mask_pixel + img_raw * (1.0 - mask_pixel)#
     return x_samples

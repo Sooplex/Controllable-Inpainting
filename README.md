@@ -28,10 +28,18 @@ python test_inpaint.py \
 --scale 9 \
 --seed 42
 ```
+## 控制Adapter
+组合Inpainting Adapter和Control Adapter，可实现对inpainting的进一步控制。
+期望Control Adapter需要对遥感图像等特定类别图像的生成进行控制，因此无法采用一般自然图像上训练的Adapter，需要训练针对遥感图像的adapter。  
+训练过程和基本的T2i-Adapter一致。
+![condition](./RS_example/highway_canny.png)  
+![inpaint效果](./RS_example/highway_result.png)
+
 ## 其他说明
 对于遥感图像而言，在batchsize为16的情况下，需要大概7000steps的训练
 遥感图像的inpainting,基础效果如下： 
 ![condition](./RS_example/airport_origin.png)  
 ![inpaint效果](./RS_example/airport_result.png)
+
 
 

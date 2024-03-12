@@ -135,8 +135,6 @@ def read_state_dict(checkpoint_file, print_global_state=False):
 
     sd = get_state_dict_from_checkpoint(pl_sd)
     return sd
-
-
 def load_model_from_config(config, ckpt, vae_ckpt=None, verbose=False):
     print(f"Loading model from {ckpt}")
     sd = read_state_dict(ckpt)
